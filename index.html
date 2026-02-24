@@ -1,126 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>System Access</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Security Verification</title>
+
 <style>
-  :root{--green:#00ff9c}
-  *{box-sizing:border-box}
-  body{background:#000;color:var(--green);font-family:Consolas,Monaco,monospace;margin:0;overflow:hidden}
-  #terminal{white-space:pre-line;font-size:18px;padding:18px}
-  .bar-wrap{padding:0 18px}
-  .bar{width:0%;height:16px;background:var(--green);transition:width 2.2s}
-  #final{display:none;position:fixed;inset:0;background:#000;color:#fff;text-align:center;padding-top:20vh;font-family:Arial,Helvetica,sans-serif}
-  #final h1{font-size:64px;color:#ff3b3b;margin:0 0 12px}
-  #final h2{font-size:36px;margin:0 0 8px}
-  /* Start overlay (required for fullscreen + audio on mobile) */
-  #start{position:fixed;inset:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:5}
-  #start button{background:var(--green);border:0;color:#000;font-weight:700;padding:14px 22px;border-radius:8px;font-size:18px;cursor:pointer}
-  #start small{opacity:.8;margin-top:10px}
-  /* Volume popup */
-  #volume{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#111;border:1px solid #333;color:#fff;padding:14px 18px;border-radius:10px;z-index:6;display:none}
-  #volume b{color:var(--green)}
-  /* Glitch flash */
-  .flash{animation:flash .18s 6 alternate}
-  @keyframes flash{from{background:#fff;color:#000}to{background:#000;color:#fff}}
+:root{
+--green:#00ff9c;
+--pink:#ff5fa2;
+--gold:#ffd166;
+}
+
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:Consolas,monospace;
+background:#000;
+color:var(--green);
+overflow:hidden;
+}
+
+/* START SCREEN */
+#start{
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+color:white;
+z-index:5;
+}
+
+#start button{
+background:var(--green);
+border:0;
+padding:15px 25px;
+border-radius:12px;
+font-weight:bold;
+font-size:18px;
+cursor:pointer;
+}
+
+#start small{
+opacity:.7;
+margin-top:10px;
+}
+
+/* TERMINAL */
+#terminal{
+white-space:pre-line;
+font-size:18px;
+padding:18px;
+max-height:70vh;
+overflow:auto;
+}
+
+.bar-wrap{padding:0 18px}
+.bar{
+width:0%;
+height:14px;
+background:var(--green);
+transition:width 1.4s;
+}
+
+/* FINAL BIRTHDAY PAGE */
+
+#final{
+display:none;
+position:fixed;
+inset:0;
+overflow:auto;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+#bggrad{
+position:fixed;
+inset:0;
+background:
+radial-gradient(circle at 20% 20%, #1a1a3a 0%, #000 40%),
+linear-gradient(120deg,#1b0033,#001f2e 60%,#002b1f);
+z-index:0;
+}
+
+#content{
+position:relative;
+z-index:2;
+max-width:900px;
+margin:0 auto;
+padding:70px 20px 80px;
+text-align:center;
+color:white;
+}
+
+.hero{
+font-size:64px;
+margin:0 0 10px;
+background:linear-gradient(90deg,#ff7a18,#ff5fa2,#ffd166,#7cffcb);
+-webkit-background-clip:text;
+background-clip:text;
+color:transparent;
+}
+
+.sub{
+font-size:28px;
+margin-bottom:25px;
+}
+
+.card{
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(10px);
+border:1px solid rgba(255,255,255,.15);
+border-radius:20px;
+padding:25px;
+box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+
+.msg{
+text-align:left;
+line-height:1.7;
+font-size:18px;
+white-space:pre-line;
+}
+
+.badge{
+margin-top:18px;
+display:inline-block;
+background:linear-gradient(90deg,#ffd166,#ff5fa2);
+color:black;
+font-weight:bold;
+padding:8px 14px;
+border-radius:999px;
+}
+
+/* BALLOONS */
+.balloon{
+position:fixed;
+bottom:-120px;
+width:70px;
+height:90px;
+border-radius:50% 50% 45% 45%;
+opacity:.9;
+z-index:1;
+}
+.balloon:after{
+content:"";
+position:absolute;
+bottom:-20px;
+left:50%;
+width:2px;
+height:40px;
+background:#ccc;
+}
+
+/* CONFETTI */
+#confetti{
+position:fixed;
+inset:0;
+z-index:1;
+pointer-events:none;
+}
+
+/* FLASH */
+.flash{animation:flash .12s 10 alternate}
+@keyframes flash{
+from{background:white;color:black}
+to{background:black;color:white}
+}
 </style>
 </head>
+
 <body>
 
 <div id="start">
-  <button id="begin">Tap to Continue</button>
-  <small>Security verification required</small>
+<button id="begin">Tap to Continue</button>
+<small>Security verification required</small>
 </div>
-
-<div id="volume">Increase volume now. <b>Audio required</b> (5s)</div>
 
 <div id="terminal"></div>
 <div class="bar-wrap"><div class="bar" id="progress"></div></div>
 
 <div id="final">
-  <h1>HAPPY BIRTHDAY</h1>
-  <h2 id="name"></h2>
-  <p>You were not hacked.</p>
+<div id="bggrad"></div>
+<canvas id="confetti"></canvas>
+
+<div id="content">
+<h1 class="hero">HAPPY 15th BIRTHDAY</h1>
+<h2 class="sub" id="name"></h2>
+
+<div class="card">
+<div class="msg" id="longmsg"></div>
+<div class="badge">Level 15 Unlocked</div>
+</div>
+</div>
 </div>
 
 <audio id="bg" preload="auto" src="audio.mp3"></audio>
 
 <script>
-// ====== CONFIG (edit address/coords if needed) ======
-const ADDRESS = "Shivam Apt., Near Thakur Mall, Dahisar (East)";
-const COORDS  = "19.2625301, 72.8754486";
+const ADDRESS="Shivam Apt., Near Thakur Mall, Dahisar (East)";
+const COORDS="19.2625301, 72.8754486";
 
-// ====== name from URL ======
-const params = new URLSearchParams(window.location.search);
-const person = params.get('name') || 'USER';
+const params=new URLSearchParams(window.location.search);
+const person=params.get('name')||"USER";
+document.getElementById('name').textContent=person;
 
-const term = document.getElementById('terminal');
-const progress = document.getElementById('progress');
-const start = document.getElementById('start');
-const volume = document.getElementById('volume');
-const audio = document.getElementById('bg');
+const message=`Yo ${person},
 
-document.getElementById('name').innerText = person;
+You actually thought your phone got hacked 😭
 
-// ====== helpers ======
+This whole thing was just so I could do something better than a boring WhatsApp "HBD".
+
+You’re 15 now. Not a kid anymore but not fully adult either — basically the weird phase where life speeds up. School pressure, future plans, random chaos, late-night talks, stupid jokes… all of it somehow turns into memories.
+
+Thanks for all the random conversations, pointless arguments, last-moment plans and dumb decisions that somehow worked out. Half the time nothing made sense but those are still the best moments.
+
+I hope this year gives you better luck, easier exams, clutch game sessions, and unlimited snacks. May your WiFi stay fast, teachers stay absent, and alarms somehow stop existing.
+
+No matter what happens next — studies, stress, future — just stay the same person. The world already has enough serious people.
+
+Happy 15th birthday. I’m glad I got to be part of your life so far and I’m looking forward to many more years of nonsense together.
+
+Now go cut the cake before someone else eats it.`;
+
+document.getElementById('longmsg').textContent=message;
+
+const term=document.getElementById('terminal');
+const progress=document.getElementById('progress');
+const audio=document.getElementById('bg');
+
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-async function print(line, delay=900){
-  term.innerHTML += line + "\n";
-  term.scrollTop = term.scrollHeight;
-  await sleep(delay);
+async function print(line,delay=420){
+term.innerHTML+=line+"\n";
+term.scrollTop=term.scrollHeight;
+await sleep(delay);
 }
 
 async function sequence(){
-  await print('Initializing remote connection...');
-  await print('Negotiating TLS handshake...');
-  await print('Bypassing firewall...');
-  await print('Acquiring device identifiers...');
-  await print('IMEI: ' + Math.floor(1e14 + Math.random()*9e14));
-  await print('MAC: ' + Array.from({length:6},()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(':'));
-  await print('Accessing contacts database...');
-  await print('Scanning gallery...');
-  await print('Searching embarrassing photos...');
-  await print('Camera permission granted.');
-  await print('Microphone active.');
-  await print('Triangulating device location...');
-  await sleep(1200);
-  await print('Location locked: ' + ADDRESS, 1200);
-  await print('Coordinates: ' + COORDS, 1400);
-  await print('Uploading data to remote server...');
-  progress.style.width = '100%';
-  await sleep(2400);
-  await reveal();
+await print('Initializing remote connection...');
+await print('Negotiating TLS handshake...');
+await print('Bypassing firewall...');
+await print('Acquiring device identifiers...');
+await print('IMEI: '+Math.floor(1e14+Math.random()*9e14));
+await print('MAC: '+Array.from({length:6},()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(':'));
+await print('Accessing contacts database...');
+await print('Scanning gallery...');
+await print('Searching embarrassing photos...');
+await print('Camera permission granted.');
+await print('Microphone active.');
+await print('Triangulating device location...');
+await print('Location locked: '+ADDRESS);
+await print('Coordinates: '+COORDS);
+await print('Uploading data to remote server...');
+progress.style.width='100%';
+await sleep(1400);
+reveal();
 }
 
 async function reveal(){
-  document.body.classList.add('flash');
-  await sleep(900);
-  document.getElementById('terminal').style.display='none';
-  document.querySelector('.bar-wrap').style.display='none';
-  document.getElementById('final').style.display='block';
+document.body.classList.add('flash');
+await sleep(800);
+document.getElementById('terminal').style.display='none';
+document.querySelector('.bar-wrap').style.display='none';
+document.getElementById('final').style.display='block';
+launchConfetti();
+spawnBalloons();
+try{audio.currentTime=0;await audio.play();}catch(e){}
 }
 
-// ====== start handler (fullscreen + volume popup + audio) ======
-document.getElementById('begin').addEventListener('click', async ()=>{
-  try{
-    const el = document.documentElement;
-    if (el.requestFullscreen) await el.requestFullscreen();
-  }catch(e){}
-
-  start.style.display='none';
-
-  // volume popup 5s
-  volume.style.display='block';
-  let t=5; const id=setInterval(()=>{ volume.textContent = `Increase volume now. Audio required (${t}s)`; t--; if(t<0){clearInterval(id); volume.style.display='none';}},1000);
-
-  // play audio after short delay (mobile policy satisfied by click)
-  try{ audio.currentTime=0; await audio.play(); }catch(e){}
-
-  // begin typing after popup finishes (~5.5s)
-  await sleep(5500);
-  sequence();
+document.getElementById('begin').addEventListener('click',async()=>{
+try{const el=document.documentElement;if(el.requestFullscreen)await el.requestFullscreen();}catch(e){}
+document.getElementById('start').style.display='none';
+await sleep(300);
+sequence();
 });
+
+/* CONFETTI */
+function launchConfetti(){
+const c=document.getElementById('confetti');
+const ctx=c.getContext('2d');
+function resize(){c.width=window.innerWidth;c.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+
+const pieces=Array.from({length:140},()=>({
+x:Math.random()*c.width,
+y:-20-Math.random()*c.height,
+r:4+Math.random()*6,
+d:1+Math.random()*2,
+c:`hsl(${Math.random()*360},90%,60%)`,
+t:Math.random()*Math.PI*2
+}));
+
+function draw(){
+ctx.clearRect(0,0,c.width,c.height);
+for(const p of pieces){
+p.y+=p.d;
+p.x+=Math.sin(p.t+=0.03)*1.5;
+ctx.fillStyle=p.c;
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+ctx.fill();
+if(p.y>c.height+10){p.y=-10;p.x=Math.random()*c.width}
+}
+requestAnimationFrame(draw);
+}
+draw();
+}
+
+/* BALLOONS */
+function spawnBalloons(){
+const colors=['#ff5fa2','#ffd166','#7cffcb','#7aa2ff','#ff7a18'];
+for(let i=0;i<10;i++){
+const b=document.createElement('div');
+b.className='balloon';
+b.style.left=Math.random()*100+'vw';
+b.style.background=colors[i%colors.length];
+b.style.animation=`rise ${14+Math.random()*10}s linear infinite`;
+document.body.appendChild(b);
+}
+const style=document.createElement('style');
+style.textContent='@keyframes rise{0%{transform:translateY(0)}100%{transform:translateY(-120vh)}}';
+document.head.appendChild(style);
+}
 </script>
+
 </body>
 </html>
