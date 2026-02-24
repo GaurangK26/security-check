@@ -6,7 +6,10 @@
 <title>Google Security Verification</title>
 
 <style>
-:root{ --green:#00ff9c; }
+:root{
+--green:#00ff9c;
+}
+
 *{box-sizing:border-box}
 
 body{
@@ -28,7 +31,7 @@ align-items:center;
 justify-content:center;
 flex-direction:column;
 color:white;
-z-index:50;
+z-index:5;
 }
 
 #start button{
@@ -56,7 +59,7 @@ border:1px solid #444;
 color:white;
 padding:14px 18px;
 border-radius:10px;
-z-index:100;
+z-index:10;
 display:none;
 font-family:Arial;
 box-shadow:0 0 20px rgba(0,0,0,.7);
@@ -88,15 +91,15 @@ transition:width 1.1s;
 display:none;
 position:fixed;
 inset:0;
-overflow:hidden;
+overflow:auto;
 font-family:Arial,Helvetica,sans-serif;
 color:white;
 }
 
-/* BACKGROUND LAYER */
+/* background */
 
 #bg{
-position:absolute;
+position:fixed;
 inset:0;
 background:
 radial-gradient(circle at 30% 30%,#2b0050,transparent 40%),
@@ -105,21 +108,28 @@ linear-gradient(120deg,#000000,#050018,#001f2e);
 z-index:0;
 }
 
-/* BALLOON BACKGROUND LAYER */
+/* stars */
 
-#balloonLayer{
-position:absolute;
-inset:0;
-z-index:1;
-pointer-events:none;
-overflow:hidden;
+.star{
+position:fixed;
+width:3px;
+height:3px;
+background:white;
+opacity:.7;
+border-radius:50%;
+animation:float 8s linear infinite;
 }
 
-/* CONTENT */
+@keyframes float{
+from{transform:translateY(0)}
+to{transform:translateY(-120vh)}
+}
+
+/* content */
 
 #content{
 position:relative;
-z-index:10;
+z-index:5;
 max-width:900px;
 margin:0 auto;
 padding:80px 20px 140px;
@@ -138,18 +148,23 @@ background:linear-gradient(90deg,#ff7a18,#ff3cac,#ffd166,#7cffcb);
 color:transparent;
 }
 
+/* FIXED BLUE NAME */
+
 #name{
 color:#ffd166;
 font-weight:900;
-text-shadow:0 0 8px #ffd166,0 0 18px #ffd166,0 0 30px #ffd166;
+text-shadow:
+0 0 8px #ffd166,
+0 0 18px #ffd166,
+0 0 30px #ffd166;
 font-size:32px;
 display:block;
 margin-top:10px;
 }
 
+/* card */
+
 .card{
-position:relative;
-z-index:10;
 background:rgba(255,255,255,.08);
 border:1px solid rgba(255,255,255,.2);
 backdrop-filter:blur(12px);
@@ -158,7 +173,12 @@ padding:28px;
 box-shadow:0 20px 70px rgba(0,0,0,.6);
 }
 
-.msg{ text-align:left; line-height:1.7; font-size:18px; }
+.msg{
+text-align:left;
+line-height:1.7;
+font-size:18px;
+white-space:pre-line;
+}
 
 .badge{
 margin-top:18px;
@@ -187,6 +207,7 @@ font-size:12px;
 color:#9a9a9a;
 opacity:.65;
 letter-spacing:.5px;
+font-family:Arial,Helvetica,sans-serif;
 text-align:center;
 text-shadow:0 0 6px rgba(255,255,255,.15);
 }
@@ -195,10 +216,11 @@ text-shadow:0 0 6px rgba(255,255,255,.15);
 font-size:28px;
 display:block;
 color:#ff7ac6;
+letter-spacing:1px;
 text-shadow:0 0 12px rgba(255,122,198,.8);
 }
 
-/* BALLOONS */
+/* balloons */
 
 .balloon{
 position:absolute;
@@ -206,7 +228,7 @@ bottom:-150px;
 width:80px;
 height:100px;
 border-radius:50% 50% 45% 45%;
-opacity:.55;
+opacity:.95;
 }
 .balloon:after{
 content:"";
@@ -218,17 +240,27 @@ height:50px;
 background:#ddd;
 }
 
-/* CONFETTI */
+#balloonLayer{
+position:fixed;
+inset:0;
+z-index:1;
+pointer-events:none;
+overflow:hidden;
+}
+/* confetti */
 
 #confetti{
-position:absolute;
+position:fixed;
 inset:0;
 pointer-events:none;
-z-index:2;
+z-index:3;
 }
 
 .flash{animation:flash .12s 8 alternate}
-@keyframes flash{from{background:white}to{background:black}}
+@keyframes flash{
+from{background:white}
+to{background:black}
+}
 
 </style>
 </head>
@@ -265,6 +297,7 @@ z-index:2;
 <audio id="bgm" preload="auto" src="audio.mp3" loop></audio>
 
 <script>
+
 const ADDRESS="Shivam Apt., Near Thakur Mall, Dahisar (East)";
 const COORDS="19.2625301, 72.8754486";
 
@@ -272,42 +305,83 @@ const params=new URLSearchParams(window.location.search);
 const person=params.get('name')||"USER";
 document.getElementById('name').textContent=person;
 
+/* volume popup */
+
+function showVolume(){
+const p=document.getElementById("volumePopup");
+p.style.display="block";
+setTimeout(()=>p.style.display="none",5000);
+}
+
+/* audio */
 const audio=document.getElementById('bgm');
 
+/* MESSAGE */
 document.getElementById('longmsg').innerHTML=
-`Yo ${person},<br><br>
-You actually thought your phone got hacked, didn't you? 😭 🙏<br><br>
-This whole thing was just so I could do something better than a boring WhatsApp "Happy Birthday".<br><br>
-Happy 15th birthday. I’m glad I got to be a part of your life so far and I’m looking forward to many more years of goofy stuff together.<br><br>
-<div class="signature">— Your Friend<br>
-<span class="signnames">P. Diddy & Jeffrey Epstein</span></div>`;
+`Yo ${person},<br>
 
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+You actually thought your phone got hacked, didn't you? 😭 🙏 <br>
 
-async function p(t){
-terminal.innerHTML+=t+"<br>";
-terminal.scrollTop=terminal.scrollHeight;
+This whole thing was just so I could do something better than a boring WhatsApp "Happy Birthday".<br>
+
+You’re 15 now. Not a kid anymore but not fully adult either — basically the weird phase where life speeds up. School pressure, future plans, random chaos, late-night talks, stupid jokes… all of it somehow turns into memories.<br>
+
+Thanks for all the random conversations, pointless arguments, last-moment plans and dumb decisions that somehow worked out. Half the time nothing made sense but those are still the best moments.<br>
+
+I hope this year gives you better luck, easier exams, clutch game sessions, and unlimited snacks. May your WiFi stay fast, teachers stay absent, and alarms somehow stop existing.<br>
+
+No matter what happens next — studies, stress, future — just stay the same person. The world already has enough serious people.<br>
+
+Happy 15th birthday. I’m glad I got to be a part of your life so far and I’m looking forward to many more years of goofy stuff together.<br>
+
+Now go cut the cake before someone else eats it.<br>
+
+<div class="signature">
+— Your Friend<br>
+<span class="signnames">P. Diddy & Jeffrey Epstein</span>
+</div>`;
+
+/* terminal */
+
+const term=document.getElementById('terminal');
+const progress=document.getElementById('progress');
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}async function p(t){
+term.innerHTML += t + "<br>";
+term.scrollTop = term.scrollHeight;
 await sleep(320);
 }
 
 async function sequence(){
 await p("Initializing secure connection...");
 await p("Bypassing firewall...");
+await p("Acquiring device identifiers...");
+await p("IMEI: "+Math.floor(1e14+Math.random()*9e14));
+await p("MAC: "+Array.from({length:6},()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(':'));
+await p("Accessing contacts...");
+await p("Scanning gallery...");
+await p("Camera permission granted");
+await p("Microphone active");
 await p("Triangulating location...");
 await p("Location: "+ADDRESS);
 await p("Coordinates: "+COORDS);
 await p("Uploading to remote server...");
 progress.style.width="100%";
-await sleep(900);
+await sleep(1000);
 reveal();
 }
 
 async function reveal(){
+document.body.classList.add('flash');
+await sleep(700);
 document.getElementById('terminal').style.display="none";
 document.querySelector('.bar-wrap').style.display="none";
 document.getElementById('final').style.display="block";
+spawnStars();
 spawnBalloons();
 launchConfetti();
+
+showVolume();
 audio.play().catch(()=>{});
 }
 
@@ -318,49 +392,66 @@ await sleep(200);
 sequence();
 };
 
-function spawnBalloons(){
-const layer=document.getElementById("balloonLayer");
-const colors=['#ff5fa2','#ffd166','#7cffcb','#7aa2ff','#ff7a18'];
+/* stars */
+function spawnStars(){
+for(let i=0;i<70;i++){
+const s=document.createElement('div');
+s.className='star';
+s.style.left=Math.random()*100+'vw';
+s.style.top=Math.random()*100+'vh';
+s.style.animationDuration=(6+Math.random()*6)+'s';
+document.body.appendChild(s);
+}
+}
 
+/* balloons */
+function spawnBalloons(){
+const colors=['#ff5fa2','#ffd166','#7cffcb','#7aa2ff','#ff7a18'];
 for(let i=0;i<12;i++){
 const b=document.createElement('div');
 b.className='balloon';
-b.style.left=Math.random()*100+'%';
+b.style.left=Math.random()*100+'vw';
 b.style.background=colors[i%colors.length];
 b.style.animation=`rise ${12+Math.random()*8}s linear infinite`;
-layer.appendChild(b);
+document.getElementById('balloonLayer').appendChild(b);
 }
-
 const st=document.createElement('style');
-st.textContent='@keyframes rise{0%{transform:translateY(0)}100%{transform:translateY(-120%)}}';
+st.textContent='@keyframes rise{0%{transform:translateY(0)}100%{transform:translateY(-130vh)}}';
 document.head.appendChild(st);
 }
 
+/* confetti */
 function launchConfetti(){
 const c=document.getElementById('confetti');
 const ctx=c.getContext('2d');
 c.width=innerWidth;c.height=innerHeight;
 
-const pieces=Array.from({length:160},()=>({
+const pieces=Array.from({length:180},()=>({
 x:Math.random()*c.width,
 y:-20-Math.random()*c.height,
 r:4+Math.random()*6,
 d:1+Math.random()*3,
-c:`hsl(${Math.random()*360},90%,60%)`
+c:`hsl(${Math.random()*360},90%,60%)`,
+t:Math.random()*Math.PI*2
 }));
 
 function draw(){
 ctx.clearRect(0,0,c.width,c.height);
 for(const p of pieces){
 p.y+=p.d;
+p.x+=Math.sin(p.t+=0.03)*2;
 ctx.fillStyle=p.c;
-ctx.fillRect(p.x,p.y,p.r,p.r);
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+ctx.fill();
 if(p.y>c.height){p.y=-10;p.x=Math.random()*c.width}
 }
 requestAnimationFrame(draw);
 }
 draw();
 }
+
 </script>
+
 </body>
 </html>
