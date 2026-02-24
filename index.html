@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>System Access</title>
+<style>
+  :root{--green:#00ff9c}
+  *{box-sizing:border-box}
+  body{background:#000;color:var(--green);font-family:Consolas,Monaco,monospace;margin:0;overflow:hidden}
+  #terminal{white-space:pre-line;font-size:18px;padding:18px}
+  .bar-wrap{padding:0 18px}
+  .bar{width:0%;height:16px;background:var(--green);transition:width 2.2s}
+  #final{display:none;position:fixed;inset:0;background:#000;color:#fff;text-align:center;padding-top:20vh;font-family:Arial,Helvetica,sans-serif}
+  #final h1{font-size:64px;color:#ff3b3b;margin:0 0 12px}
+  #final h2{font-size:36px;margin:0 0 8px}
+  /* Start overlay (required for fullscreen + audio on mobile) */
+  #start{position:fixed;inset:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:5}
+  #start button{background:var(--green);border:0;color:#000;font-weight:700;padding:14px 22px;border-radius:8px;font-size:18px;cursor:pointer}
+  #start small{opacity:.8;margin-top:10px}
+  /* Volume popup */
+  #volume{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#111;border:1px solid #333;color:#fff;padding:14px 18px;border-radius:10px;z-index:6;display:none}
+  #volume b{color:var(--green)}
+  /* Glitch flash */
+  .flash{animation:flash .18s 6 alternate}
+  @keyframes flash{from{background:#fff;color:#000}to{background:#000;color:#fff}}
+</style>
+</head>
+<body>
+
+<div id="start">
+  <button id="begin">Tap to Continue</button>
+  <small>Security verification required</small>
+</div>
+
+<div id="volume">Increase volume now. <b>Audio required</b> (5s)</div>
+
+<div id="terminal"></div>
+<div class="bar-wrap"><div class="bar" id="progress"></div></div>
+
+<div id="final">
+  <h1>HAPPY BIRTHDAY</h1>
+  <h2 id="name"></h2>
+  <p>You were not hacked.</p>
+</div>
+
+<audio id="bg" preload="auto" src="audio.mp3"></audio>
+
+<script>
+// ====== CONFIG (edit address/coords if needed) ======
+const ADDRESS = "Shivam Apt., Near Thakur Mall, Dahisar (East)";
+const COORDS  = "19.2625301, 72.8754486";
+
+// ====== name from URL ======
+const params = new URLSearchParams(window.location.search);
+const person = params.get('name') || 'USER';
+
+const term = document.getElementById('terminal');
+const progress = document.getElementById('progress');
+const start = document.getElementById('start');
+const volume = document.getElementById('volume');
+const audio = document.getElementById('bg');
+
+document.getElementById('name').innerText = person;
+
+// ====== helpers ======
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+async function print(line, delay=900){
+  term.innerHTML += line + "\n";
+  term.scrollTop = term.scrollHeight;
+  await sleep(delay);
+}
+
+async function sequence(){
+  await print('Initializing remote connection...');
+  await print('Negotiating TLS handshake...');
+  await print('Bypassing firewall...');
+  await print('Acquiring device identifiers...');
+  await print('IMEI: ' + Math.floor(1e14 + Math.random()*9e14));
+  await print('MAC: ' + Array.from({length:6},()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(':'));
+  await print('Accessing contacts database...');
+  await print('Scanning gallery...');
+  await print('Searching embarrassing photos...');
+  await print('Camera permission granted.');
+  await print('Microphone active.');
+  await print('Triangulating device location...');
+  await sleep(1200);
+  await print('Location locked: ' + ADDRESS, 1200);
+  await print('Coordinates: ' + COORDS, 1400);
+  await print('Uploading data to remote server...');
+  progress.style.width = '100%';
+  await sleep(2400);
+  await reveal();
+}
+
+async function reveal(){
+  document.body.classList.add('flash');
+  await sleep(900);
+  document.getElementById('terminal').style.display='none';
+  document.querySelector('.bar-wrap').style.display='none';
+  document.getElementById('final').style.display='block';
+}
+
+// ====== start handler (fullscreen + volume popup + audio) ======
+document.getElementById('begin').addEventListener('click', async ()=>{
+  try{
+    const el = document.documentElement;
+    if (el.requestFullscreen) await el.requestFullscreen();
+  }catch(e){}
+
+  start.style.display='none';
+
+  // volume popup 5s
+  volume.style.display='block';
+  let t=5; const id=setInterval(()=>{ volume.textContent = `Increase volume now. Audio required (${t}s)`; t--; if(t<0){clearInterval(id); volume.style.display='none';}},1000);
+
+  // play audio after short delay (mobile policy satisfied by click)
+  try{ audio.currentTime=0; await audio.play(); }catch(e){}
+
+  // begin typing after popup finishes (~5.5s)
+  await sleep(5500);
+  sequence();
+});
+</script>
+</body>
+</html>
