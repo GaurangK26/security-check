@@ -108,6 +108,16 @@ linear-gradient(120deg,#000000,#050018,#001f2e);
 z-index:0;
 }
 
+/* BALLOON BACKGROUND LAYER */
+
+#balloonLayer{
+position:fixed;
+inset:0;
+z-index:2;
+pointer-events:none;
+overflow:hidden;
+}
+
 /* stars */
 
 .star{
@@ -148,8 +158,6 @@ background:linear-gradient(90deg,#ff7a18,#ff3cac,#ffd166,#7cffcb);
 color:transparent;
 }
 
-/* FIXED BLUE NAME */
-
 #name{
 color:#ffd166;
 font-weight:900;
@@ -161,8 +169,6 @@ font-size:32px;
 display:block;
 margin-top:10px;
 }
-
-/* card */
 
 .card{
 background:rgba(255,255,255,.08);
@@ -220,16 +226,15 @@ letter-spacing:1px;
 text-shadow:0 0 12px rgba(255,122,198,.8);
 }
 
-/* balloons */
+/* balloons (now background only) */
 
 .balloon{
-position:fixed;
+position:absolute;
 bottom:-150px;
 width:80px;
 height:100px;
 border-radius:50% 50% 45% 45%;
-opacity:.95;
-z-index:2;
+opacity:.55;
 }
 .balloon:after{
 content:"";
@@ -273,6 +278,7 @@ to{background:black}
 
 <div id="final">
 <div id="bg"></div>
+<div id="balloonLayer"></div>
 <canvas id="confetti"></canvas>
 
 <div id="content">
@@ -298,48 +304,30 @@ const params=new URLSearchParams(window.location.search);
 const person=params.get('name')||"USER";
 document.getElementById('name').textContent=person;
 
-/* volume popup */
-
 function showVolume(){
 const p=document.getElementById("volumePopup");
 p.style.display="block";
 setTimeout(()=>p.style.display="none",5000);
 }
 
-/* audio */
 const audio=document.getElementById('bgm');
 
-/* MESSAGE */
 document.getElementById('longmsg').innerHTML=
 `Yo ${person},<br>
-
 You actually thought your phone got hacked, didn't you? 😭 🙏 <br>
-
 This whole thing was just so I could do something better than a boring WhatsApp "Happy Birthday".<br>
-
-You’re 15 now. Not a kid anymore but not fully adult either — basically the weird phase where life speeds up. School pressure, future plans, random chaos, late-night talks, stupid jokes… all of it somehow turns into memories.<br>
-
-Thanks for all the random conversations, pointless arguments, last-moment plans and dumb decisions that somehow worked out. Half the time nothing made sense but those are still the best moments.<br>
-
-I hope this year gives you better luck, easier exams, clutch game sessions, and unlimited snacks. May your WiFi stay fast, teachers stay absent, and alarms somehow stop existing.<br>
-
-No matter what happens next — studies, stress, future — just stay the same person. The world already has enough serious people.<br>
-
-Happy 15th birthday. I’m glad I got to be a part of your life so far and I’m looking forward to many more years of goofy stuff together.<br>
-
-Now go cut the cake before someone else eats it.<br>
-
+You’re 15 now. Not a kid anymore but not fully adult either — basically the weird phase where life speeds up.<br><br>
+Happy 15th birthday. I’m glad I got to be a part of your life so far and I’m looking forward to many more years of goofy stuff together.<br><br>
 <div class="signature">
 — Your Friend<br>
 <span class="signnames">P. Diddy & Jeffrey Epstein</span>
 </div>`;
 
-/* terminal */
-
 const term=document.getElementById('terminal');
 const progress=document.getElementById('progress');
 
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}async function p(t){
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+async function p(t){
 term.innerHTML += t + "<br>";
 term.scrollTop = term.scrollHeight;
 await sleep(320);
@@ -351,10 +339,6 @@ await p("Bypassing firewall...");
 await p("Acquiring device identifiers...");
 await p("IMEI: "+Math.floor(1e14+Math.random()*9e14));
 await p("MAC: "+Array.from({length:6},()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(':'));
-await p("Accessing contacts...");
-await p("Scanning gallery...");
-await p("Camera permission granted");
-await p("Microphone active");
 await p("Triangulating location...");
 await p("Location: "+ADDRESS);
 await p("Coordinates: "+COORDS);
@@ -370,10 +354,8 @@ await sleep(700);
 document.getElementById('terminal').style.display="none";
 document.querySelector('.bar-wrap').style.display="none";
 document.getElementById('final').style.display="block";
-spawnStars();
 spawnBalloons();
 launchConfetti();
-
 showVolume();
 audio.play().catch(()=>{});
 }
@@ -385,35 +367,24 @@ await sleep(200);
 sequence();
 };
 
-/* stars */
-function spawnStars(){
-for(let i=0;i<70;i++){
-const s=document.createElement('div');
-s.className='star';
-s.style.left=Math.random()*100+'vw';
-s.style.top=Math.random()*100+'vh';
-s.style.animationDuration=(6+Math.random()*6)+'s';
-document.body.appendChild(s);
-}
-}
-
-/* balloons */
 function spawnBalloons(){
+const layer=document.getElementById("balloonLayer");
 const colors=['#ff5fa2','#ffd166','#7cffcb','#7aa2ff','#ff7a18'];
+
 for(let i=0;i<12;i++){
 const b=document.createElement('div');
 b.className='balloon';
 b.style.left=Math.random()*100+'vw';
 b.style.background=colors[i%colors.length];
 b.style.animation=`rise ${12+Math.random()*8}s linear infinite`;
-document.body.appendChild(b);
+layer.appendChild(b);
 }
+
 const st=document.createElement('style');
 st.textContent='@keyframes rise{0%{transform:translateY(0)}100%{transform:translateY(-130vh)}}';
 document.head.appendChild(st);
 }
 
-/* confetti */
 function launchConfetti(){
 const c=document.getElementById('confetti');
 const ctx=c.getContext('2d');
@@ -445,6 +416,5 @@ draw();
 }
 
 </script>
-
 </body>
 </html>
