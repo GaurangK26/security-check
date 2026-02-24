@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+i<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -303,8 +303,11 @@ P. Diddy & Jeffrey Epstein`;
 const term=document.getElementById('terminal');
 const progress=document.getElementById('progress');
 
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-async function p(t){term.innerHTML+=t+"\\n";await sleep(320)}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}async function p(t){
+term.innerHTML += t + "<br>";
+term.scrollTop = term.scrollHeight;
+await sleep(320);
+}
 
 async function sequence(){
 await p("Initializing secure connection...");
