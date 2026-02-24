@@ -132,8 +132,12 @@ position:relative;
 z-index:2;
 max-width:900px;
 margin:0 auto;
-padding:80px 20px;
+padding:80px 20px 140px;
 text-align:center;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:center;
 }
 
 .hero{
@@ -197,7 +201,8 @@ text-shadow:0 0 10px rgba(255,209,102,.7);
 }
 
 #credit{
-margin-top:40px;
+margin-top:auto;
+padding-top:40px;
 font-size:12px;
 color:#9a9a9a;
 opacity:.65;
@@ -258,7 +263,7 @@ to{background:black}
 
 <div id="start">
 <button id="begin">Tap to Continue</button>
-<small>Security verification required</small>
+<small>Security verification required to proceed</small>
 </div>
 
 <div id="volumePopup">🔊 Increase volume — audio will play</div>
@@ -271,16 +276,16 @@ to{background:black}
 <canvas id="confetti"></canvas>
 
 <div id="content">
-<h1 class="hero">HAPPY 15th BIRTHDAY</h1>
+<h1 class="hero">HAPPY 15th BIRTHDAY!!!</h1>
 <span id="name"></span>
 
 <div class="card">
 <div class="msg" id="longmsg"></div>
 <div class="badge">Level 15 Unlocked</div>
 </div>
-</div>
-</div>
 <div id="credit">Made by Gaurang ❤</div>
+</div>
+</div>
 
 <audio id="bgm" preload="auto" src="audio.mp3" loop></audio>
 
